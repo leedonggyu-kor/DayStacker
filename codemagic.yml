@@ -1,0 +1,33 @@
+workflows:
+  ios-native-workflow:
+    name: DayStacker iOS
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    environment:
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: com.leedonggyu.DayStacker
+      vars:
+        BUNDLE_ID: "com.leedonggyu.DayStacker"
+        XCODE_PROJECT: "DayStacker.xcodeproj"
+        XCODE_SCHEME: "DayStacker"
+      xcode: latest
+    scripts:
+      - name: Set up provisioning profiles
+        script: xcode-project use-profiles
+      - name: Build ipa
+        script: |
+          xcode-project build-ipa \
+            --project "$CM_BUILD_DIR/$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+    publishing:
+      email:
+        recipients:
+          - crockkevin1234@gmail.com
+        notify:
+          success: true
+          failure: true

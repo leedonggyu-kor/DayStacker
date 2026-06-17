@@ -4,26 +4,21 @@ workflows:
     max_build_duration: 120
     instance_type: mac_mini_m2
     environment:
-      ios_signing:
-        distribution_type: development
-        bundle_identifier: com.leedonggyu.DayStacker
       vars:
-        BUNDLE_ID: "com.leedonggyu.DayStacker"
         XCODE_PROJECT: "DayStacker.xcodeproj"
         XCODE_SCHEME: "DayStacker"
       xcode: latest
     scripts:
-      - name: Set up provisioning profiles
-        script: xcode-project use-profiles
-      - name: Build ipa
+      - name: Build (no signing)
         script: |
-          xcode-project build-ipa \
-            --project "$CM_BUILD_DIR/$XCODE_PROJECT" \
-            --scheme "$XCODE_SCHEME"
+          xcodebuild build \
+            -project "$CM_BUILD_DIR/$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -destination "generic/platform=iOS Simulator" \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty
     artifacts:
-      - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
-      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
     publishing:
       email:
         recipients:
